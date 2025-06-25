@@ -45,7 +45,6 @@ class StudentApiIntegrationTest {
 
     @Test
     void testCreateCourseAndLearner_ShouldWorkCorrectly() throws Exception {
-        // Create course
         Course course = new Course();
         course.setCourseName("Java Programming");
         course.setDepartment("Computer Science");
@@ -63,7 +62,6 @@ class StudentApiIntegrationTest {
 
         Course savedCourse = objectMapper.readValue(courseResponse, Course.class);
 
-        // Create learner
         Learner learner = new Learner();
         learner.setFullName("John Doe");
         learner.setGivenName("John");
@@ -83,13 +81,11 @@ class StudentApiIntegrationTest {
 
     @Test
     void testSearchLearnersByDepartment_ShouldReturnLearners() throws Exception {
-        // Create course
         Course course = new Course();
         course.setCourseName("Java Programming");
         course.setDepartment("Computer Science");
         Course savedCourse = courseRepository.save(course);
 
-        // Create learner
         Learner learner = new Learner();
         learner.setFullName("John Doe");
         learner.setGivenName("John");
@@ -98,7 +94,6 @@ class StudentApiIntegrationTest {
         learner.setCourse(savedCourse);
         learnerRepository.save(learner);
 
-        // Test search
         mockMvc.perform(get("/api/learners/by-department")
                 .param("department", "Computer Science"))
                 .andExpect(status().isOk())
@@ -107,13 +102,11 @@ class StudentApiIntegrationTest {
 
     @Test
     void testSearchCoursesByName_ShouldReturnCourses() throws Exception {
-        // Create course
         Course course = new Course();
         course.setCourseName("Java Programming");
         course.setDepartment("Computer Science");
         courseRepository.save(course);
 
-        // Test search
         mockMvc.perform(get("/api/courses/search")
                 .param("courseName", "Java"))
                 .andExpect(status().isOk())
@@ -122,12 +115,10 @@ class StudentApiIntegrationTest {
 
     @Test
     void testCacheOperations_ShouldWorkCorrectly() throws Exception {
-        // Test cache info
         mockMvc.perform(get("/api/cache/info"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.size").exists());
 
-        // Test clear cache
         mockMvc.perform(delete("/api/cache/clear"))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Cache cleared successfully"));

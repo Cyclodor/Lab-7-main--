@@ -31,7 +31,6 @@ class ScheduleDAOTest {
 
     @Test
     void testGetStudentCourses_Success() {
-        // Arrange
         BsuirGroupDto[] bsuirGroups = new BsuirGroupDto[2];
         
         BsuirGroupDto group1 = new BsuirGroupDto();
@@ -47,10 +46,8 @@ class ScheduleDAOTest {
         when(restTemplate.getForObject(any(String.class), eq(BsuirGroupDto[].class)))
             .thenReturn(bsuirGroups);
 
-        // Act
         List<Course> result = scheduleDAO.getStudentCourses();
 
-        // Assert
         assertNotNull(result);
         assertEquals(2, result.size());
         assertEquals("Java Programming", result.get(0).getCourseName());
@@ -61,28 +58,22 @@ class ScheduleDAOTest {
 
     @Test
     void testGetStudentCourses_EmptyResponse() {
-        // Arrange
         when(restTemplate.getForObject(any(String.class), eq(BsuirGroupDto[].class)))
             .thenReturn(new BsuirGroupDto[0]);
 
-        // Act
         List<Course> result = scheduleDAO.getStudentCourses();
 
-        // Assert
         assertNotNull(result);
         assertTrue(result.isEmpty());
     }
 
     @Test
     void testGetStudentCourses_NullResponse() {
-        // Arrange
         when(restTemplate.getForObject(any(String.class), eq(BsuirGroupDto[].class)))
             .thenReturn(null);
 
-        // Act
         List<Course> result = scheduleDAO.getStudentCourses();
 
-        // Assert
         assertNotNull(result);
         assertTrue(result.isEmpty());
     }

@@ -1,4 +1,3 @@
--- Инициализация курсов
 INSERT INTO courses (course_name, department) VALUES 
 ('Java Programming', 'Computer Science'),
 ('Python Development', 'Computer Science'),
@@ -6,7 +5,6 @@ INSERT INTO courses (course_name, department) VALUES
 ('Database Management', 'Computer Science'),
 ('Mobile App Development', 'Information Technology');
 
--- Инициализация студентов
 INSERT INTO learners (full_name, given_name, family_name, enrollment_number, course_id) VALUES 
 ('John Doe', 'John', 'Doe', '2024001', 1),
 ('Jane Smith', 'Jane', 'Smith', '2024002', 1),

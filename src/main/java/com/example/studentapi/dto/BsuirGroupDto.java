@@ -3,9 +3,6 @@ package com.example.studentapi.dto;
 import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * DTO класс для работы с данными групп из внешнего API БГУИР
- */
 @Data
 public class BsuirGroupDto {
     

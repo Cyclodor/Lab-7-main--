@@ -2,9 +2,6 @@ package com.example.studentapi.dto;
 
 import lombok.Data;
 
-/**
- * DTO класс для передачи данных о курсах
- */
 @Data
 public class CourseDto {
     private Long id;
