@@ -44,6 +44,8 @@
     <h2>Студенты</h2>
     <form id="learnerForm">
         <input type="text" id="learnerFullName" placeholder="ФИО" required>
+        <input type="text" id="learnerGivenName" placeholder="Имя" required>
+        <input type="text" id="learnerFamilyName" placeholder="Фамилия" required>
         <input type="text" id="learnerEnrollmentNumber" placeholder="Номер зачетки" required>
         <select id="learnerCourse" required></select>
         <button type="submit">Добавить студента</button>
@@ -121,7 +123,6 @@ async function loadAndRender() {
     renderCourseOptions(courses);
 }
 
-// Добавление/обновление курса
 const form = document.getElementById('courseForm');
 form.onsubmit = async (e) => {
     e.preventDefault();
@@ -159,7 +160,6 @@ window.deleteCourse = async (id) => {
     }
 };
 
-// --- Работа со студентами ---
 function renderCourseOptions(courses) {
     const select = document.getElementById('learnerCourse');
     select.innerHTML = '';
@@ -175,12 +175,14 @@ const learnerForm = document.getElementById('learnerForm');
 learnerForm.onsubmit = async (e) => {
     e.preventDefault();
     const fullName = document.getElementById('learnerFullName').value;
+    const givenName = document.getElementById('learnerGivenName').value;
+    const familyName = document.getElementById('learnerFamilyName').value;
     const enrollmentNumber = document.getElementById('learnerEnrollmentNumber').value;
     const courseId = document.getElementById('learnerCourse').value;
     await fetch(API_LEARNERS, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fullName, enrollmentNumber, course: { id: courseId } })
+        body: JSON.stringify({ fullName, givenName, familyName, enrollmentNumber, course: { id: courseId } })
     });
     learnerForm.reset();
     loadAndRender();
@@ -193,7 +195,6 @@ window.deleteLearner = async (id) => {
     }
 };
 
-// Первичная загрузка
 loadAndRender();
 </script>
 </body>
