@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Курсы и Студенты</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f6f8fa; margin: 0; padding: 0; }
+        .container { max-width: 900px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 32px; }
+        h1 { text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+        th, td { border: 1px solid #e1e4e8; padding: 8px 12px; text-align: left; }
+        th { background: #f3f4f6; }
+        tr:nth-child(even) { background: #f9f9f9; }
+        .actions button { margin-right: 8px; }
+        form { display: flex; gap: 12px; margin-bottom: 24px; }
+        input, select { padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; }
+        button { background: #2ea44f; color: #fff; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; transition: background 0.2s; }
+        button:hover { background: #22863a; }
+        .edit-mode { background: #fffbe6; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Курсы и Студенты</h1>
+    <form id="courseForm">
+        <input type="hidden" id="courseId">
+        <input type="text" id="courseName" placeholder="Название курса" required>
+        <input type="text" id="courseDescription" placeholder="Описание" required>
+        <button type="submit">Сохранить</button>
+        <button type="button" id="cancelEdit" style="display:none;background:#d73a49;">Отмена</button>
+    </form>
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Название</th>
+            <th>Описание</th>
+            <th>Студенты</th>
+            <th>Действия</th>
+        </tr>
+        </thead>
+        <tbody id="coursesTableBody"></tbody>
+    </table>
+    <h2>Студенты</h2>
+    <form id="learnerForm">
+        <input type="text" id="learnerFullName" placeholder="ФИО" required>
+        <input type="text" id="learnerEnrollmentNumber" placeholder="Номер зачетки" required>
+        <select id="learnerCourse" required></select>
+        <button type="submit">Добавить студента</button>
+    </form>
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>ФИО</th>
+            <th>Номер зачетки</th>
+            <th>Курс</th>
+            <th>Действия</th>
+        </tr>
+        </thead>
+        <tbody id="learnersTableBody"></tbody>
+    </table>
+</div>
+<script>
+const API_COURSES = '/api/courses';
+const API_LEARNERS = '/api/learners';
+
+async function fetchCourses() {
+    const res = await fetch(API_COURSES);
+    return res.json();
+}
+
+async function fetchLearners() {
+    const res = await fetch(API_LEARNERS);
+    return res.json();
+}
+
+function renderCourses(courses) {
+    const tbody = document.getElementById('coursesTableBody');
+    tbody.innerHTML = '';
+    courses.forEach(course => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${course.id}</td>
+            <td>${course.name || course.courseName || ''}</td>
+            <td>${course.description || course.department || ''}</td>
+            <td>${(course.learners || []).map(l => l.fullName || l.name).join(', ')}</td>
+            <td class="actions">
+                <button onclick="editCourse(${course.id}, '${course.name || course.courseName || ''}', '${course.description || course.department || ''}')">✏️</button>
+                <button onclick="deleteCourse(${course.id})" style="background:#d73a49;">🗑️</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function renderLearners(learners, courses) {
+    const tbody = document.getElementById('learnersTableBody');
+    tbody.innerHTML = '';
+    learners.forEach(learner => {
+        const course = courses.find(c => c.id === (learner.course?.id || learner.courseId));
+        const courseName = course ? (course.name || course.courseName) : '';
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${learner.id}</td>
+            <td>${learner.fullName || learner.name}</td>
+            <td>${learner.enrollmentNumber || ''}</td>
+            <td>${courseName}</td>
+            <td class="actions">
+                <button onclick="deleteLearner(${learner.id})" style="background:#d73a49;">🗑️</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+async function loadAndRender() {
+    const [courses, learners] = await Promise.all([fetchCourses(), fetchLearners()]);
+    renderCourses(courses);
+    renderLearners(learners, courses);
+    renderCourseOptions(courses);
+}
+
+// Добавление/обновление курса
+const form = document.getElementById('courseForm');
+form.onsubmit = async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('courseId').value;
+    const name = document.getElementById('courseName').value;
+    const description = document.getElementById('courseDescription').value;
+    const method = id ? 'PUT' : 'POST';
+    const url = id ? `${API_COURSES}/${id}` : API_COURSES;
+    await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, courseName: name, description, department: description })
+    });
+    form.reset();
+    document.getElementById('cancelEdit').style.display = 'none';
+    loadAndRender();
+};
+
+window.editCourse = (id, name, description) => {
+    document.getElementById('courseId').value = id;
+    document.getElementById('courseName').value = name;
+    document.getElementById('courseDescription').value = description;
+    document.getElementById('cancelEdit').style.display = '';
+};
+
+document.getElementById('cancelEdit').onclick = () => {
+    form.reset();
+    document.getElementById('cancelEdit').style.display = 'none';
+};
+
+window.deleteCourse = async (id) => {
+    if (confirm('Удалить курс?')) {
+        await fetch(`${API_COURSES}/${id}`, { method: 'DELETE' });
+        loadAndRender();
+    }
+};
+
+// --- Работа со студентами ---
+function renderCourseOptions(courses) {
+    const select = document.getElementById('learnerCourse');
+    select.innerHTML = '';
+    courses.forEach(course => {
+        const option = document.createElement('option');
+        option.value = course.id;
+        option.textContent = course.name || course.courseName;
+        select.appendChild(option);
+    });
+}
+
+const learnerForm = document.getElementById('learnerForm');
+learnerForm.onsubmit = async (e) => {
+    e.preventDefault();
+    const fullName = document.getElementById('learnerFullName').value;
+    const enrollmentNumber = document.getElementById('learnerEnrollmentNumber').value;
+    const courseId = document.getElementById('learnerCourse').value;
+    await fetch(API_LEARNERS, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fullName, enrollmentNumber, course: { id: courseId } })
+    });
+    learnerForm.reset();
+    loadAndRender();
+};
+
+window.deleteLearner = async (id) => {
+    if (confirm('Удалить студента?')) {
+        await fetch(`${API_LEARNERS}/${id}`, { method: 'DELETE' });
+        loadAndRender();
+    }
+};
+
+// Первичная загрузка
+loadAndRender();
+</script>
+</body>
+</html> 

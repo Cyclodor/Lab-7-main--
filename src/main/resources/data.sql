@@ -1,3 +1,8 @@
+DELETE FROM learners;
+DELETE FROM courses;
+ALTER SEQUENCE courses_id_seq RESTART WITH 1;
+ALTER SEQUENCE learners_id_seq RESTART WITH 1;
+
 INSERT INTO courses (course_name, department) VALUES 
 ('Java Programming', 'Computer Science'),
 ('Python Development', 'Computer Science'),
