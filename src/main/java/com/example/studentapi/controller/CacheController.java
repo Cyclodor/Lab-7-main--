@@ -57,4 +57,11 @@ public class CacheController {
         logger.info("Requests count requested. Current count: {}", count);
         return ResponseEntity.ok(info);
     }
+    
+    @PostMapping("/reset-requests-count")
+    public ResponseEntity<String> resetRequestsCount() {
+        requestCounterService.reset();
+        logger.info("Requests count reset to 0");
+        return ResponseEntity.ok("Requests count reset to 0");
+    }
 } 
